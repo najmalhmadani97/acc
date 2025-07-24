@@ -1,0 +1,1810 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام المحاسبة المتكامل (واجهة محاكاة)</title>
+    <!-- تضمين Tailwind CSS CDN لتصميم أنيق وعصري -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- تضمين Font Awesome للأيقونات -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* خلفية فاتحة */
+        }
+        .sidebar {
+            background-color: #1f2937; /* لون داكن للشريط الجانبي */
+            color: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.75rem;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+        .sidebar-item:hover {
+            background-color: #374151;
+        }
+        .sidebar-item.active {
+            background-color: #059669; /* لون أخضر للعنصر النشط */
+        }
+        .sidebar-item i {
+            margin-left: 0.75rem; /* مسافة بين الأيقونة والنص */
+            font-size: 1.25rem;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 1rem; /* زوايا مستديرة */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+        .table-header {
+            background-color: #F9FAFB;
+            color: #4B5563;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            text-align: right; /* محاذاة لليمين للنص العربي */
+        }
+        .table-cell {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        .metric-card {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 1.25rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .metric-value {
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: 700; /* font-bold */
+            color: #10B981; /* green-500 */
+            margin-bottom: 0.5rem;
+        }
+        .metric-label {
+            font-size: 0.875rem; /* text-sm */
+            color: #6B7280; /* gray-500 */
+        }
+        .input-field {
+            border: 1px solid #D1D5DB;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            width: 100%;
+        }
+        .btn-primary {
+            background-color: #10B981; /* لون أخضر جذاب */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #059669;
+        }
+        /* رسالة التنبيه المخصصة (بديل لـ alert) */
+        #customAlert {
+            z-index: 1000; /* لضمان ظهورها فوق كل شيء */
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #D1D5DB;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+        .btn-primary {
+            background-color: #10B981; /* لون أخضر جذاب */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #059669;
+        }
+        .btn-secondary {
+            background-color: #6B7280; /* لون رمادي ثانوي */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            transition: background-color 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #4B5563;
+        }
+        .btn-danger {
+            background-color: #EF4444; /* لون أحمر للخطر */
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+        .btn-danger:hover {
+            background-color: #DC2626;
+        }
+    </style>
+</head>
+<body class="flex min-h-screen">
+
+    <!-- الشريط الجانبي (Sidebar) -->
+    <aside class="sidebar w-64 p-6 flex-shrink-0">
+        <div class="text-2xl font-bold mb-8 text-center text-white">
+            النظام المحاسبي التجريبي نظام ابن دبوان
+        </div>
+        <nav>
+            <ul>
+                <li>
+                    <a href="#" class="sidebar-item active" data-section="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>لوحة التحكم</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-item" data-section="general-ledger">
+                        <i class="fas fa-book"></i>
+                        <span>دفتر الأستاذ العام</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-item" data-section="journal-entries">
+                        <i class="fas fa-edit"></i>
+                        <span>قيود اليومية</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-item" data-section="customer-invoices">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span>فواتير العملاء</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-item" data-section="vendor-bills">
+                        <i class="fas fa-hand-holding-usd"></i>
+                        <span>فواتير الموردين</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-item" data-section="inventory-management">
+                        <i class="fas fa-boxes"></i>
+                        <span>إدارة المخزون</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-item" data-section="cash-accounts">
+                        <i class="fas fa-wallet"></i>
+                        <span>الصناديق والبنوك</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-item" data-section="reports">
+                        <i class="fas fa-chart-line"></i>
+                        <span>التقارير المالية</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="sidebar-item" data-section="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>الإعدادات</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="flex-grow p-6">
+        <header class="flex justify-between items-center mb-6">
+            <h1 id="mainTitle" class="text-4xl font-extrabold text-gray-900">لوحة التحكم</h1>
+            <div class="text-lg text-gray-600">
+                <i class="fas fa-user-circle ml-2"></i>
+                <span>المستخدم: المهندس نجم الدين الهمداني </span>
+            </div>
+        </header>
+
+        <!-- الأقسام المختلفة للمحتوى -->
+        <div id="dashboard" class="content-section active-section">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="metric-card">
+                    <div id="totalSales" class="metric-value">0.00</div>
+                    <div class="metric-label">إجمالي المبيعات (الشهر الحالي)</div>
+                </div>
+                <div class="metric-card">
+                    <div id="totalExpenses" class="metric-value">0.00</div>
+                    <div class="metric-label">المصروفات (الشهر الحالي)</div>
+                </div>
+                <div class="metric-card">
+                    <div id="netProfit" class="metric-value">0.00</div>
+                    <div class="metric-label">صافي الربح (الشهر الحالي)</div>
+                </div>
+                <div class="metric-card">
+                    <div id="totalAssets" class="metric-value">0.00</div>
+                    <div class="metric-label">إجمالي الأصول</div>
+                </div>
+            </div>
+
+            <div class="card mb-6">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-700">آخر 5 قيود يومية</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
+                        <thead>
+                            <tr>
+                                <th class="table-header">التاريخ</th>
+                                <th class="table-header">المرجع</th>
+                                <th class="table-header">الوصف</th>
+                                <th class="table-header">مدين</th>
+                                <th class="table-header">دائن</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboardJournalEntries" class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="5" class="table-cell text-center text-gray-500">لا توجد قيود يومية لعرضها.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="general-ledger" class="content-section hidden">
+            <div class="card">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-700">دفتر الأستاذ العام</h3>
+                <p class="text-gray-600 mb-4">
+                    هنا سيتم عرض جميع الحسابات وأرصدتها الحالية.
+                </p>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
+                        <thead>
+                            <tr>
+                                <th class="table-header">رقم الحساب</th>
+                                <th class="table-header">اسم الحساب</th>
+                                <th class="table-header">الرصيد المدين</th>
+                                <th class="table-header">الرصيد الدائن</th>
+                            </tr>
+                        </thead>
+                        <tbody id="generalLedgerAccounts" class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="4" class="table-cell text-center text-gray-500">لا توجد حسابات لعرضها.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="journal-entries" class="content-section hidden">
+            <div class="card mb-6">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-700">إضافة قيد يومية جديد</h3>
+                <p class="text-gray-600 mb-4">
+                    <span class="font-bold text-blue-500">ملاحظة:</span> هذه الواجهة تحاكي إضافة القيود وتحديث الأرصدة في التخزين المحلي للمتصفح.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="journalDate">التاريخ:</label>
+                        <input type="date" id="journalDate" class="input-field" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="journalRef">المرجع:</label>
+                        <input type="text" id="journalRef" placeholder="مرجع القيد (اختياري)" class="input-field">
+                    </div>
+                    <div class="form-group md:col-span-2">
+                        <label for="journalDescription">الوصف:</label>
+                        <textarea id="journalDescription" placeholder="وصف القيد" rows="2" class="input-field"></textarea>
+                    </div>
+                </div>
+                <h4 class="text-xl font-semibold mt-6 mb-3 text-gray-700">تفاصيل القيد</h4>
+                <div id="journalLinesContainer">
+                    <!-- سيتم إضافة سطور القيد هنا بواسطة JavaScript -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 journal-line">
+                        <div class="form-group">
+                            <label>الحساب:</label>
+                            <select class="input-field journal-account-select"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>مدين:</label>
+                            <input type="number" step="0.01" value="0.00" class="input-field journal-debit" oninput="updateJournalTotals()">
+                        </div>
+                        <div class="form-group">
+                            <label>دائن:</label>
+                            <input type="number" step="0.01" value="0.00" class="input-field journal-credit" oninput="updateJournalTotals()">
+                        </div>
+                        <div class="form-group flex items-end">
+                            <button onclick="removeJournalLine(this)" class="btn-danger w-full">إزالة</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center mt-4 mb-6">
+                    <button onclick="addJournalLine()" class="btn-secondary">إضافة سطر</button>
+                    <div class="text-lg font-bold text-gray-800">
+                        <span id="journalDebitTotal">0.00</span> مدين | <span id="journalCreditTotal">0.00</span> دائن
+                    </div>
+                </div>
+                <button onclick="saveJournalEntry()" class="btn-primary w-full text-xl py-3">حفظ قيد اليومية</button>
+            </div>
+
+            <div class="card">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-700">سجل قيود اليومية</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
+                        <thead>
+                            <tr>
+                                <th class="table-header">التاريخ</th>
+                                <th class="table-header">المرجع</th>
+                                <th class="table-header">الوصف</th>
+                                <th class="table-header">المدين الكلي</th>
+                                <th class="table-header">الدائن الكلي</th>
+                                <th class="table-header">إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="journalEntriesList" class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="6" class="table-cell text-center text-gray-500">لا توجد قيود يومية.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="accounts-receivable" class="content-section hidden">
+            <div class="card mb-6">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-700">إضافة فاتورة عميل جديدة</h3>
+                <p class="text-gray-600 mb-4">
+                    <span class="font-bold text-blue-500">ملاحظة:</span> هذه الواجهة تحاكي إضافة الفواتير وتحديث الأرصدة في التخزين المحلي للمتصفح.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="arInvoiceDate">تاريخ الفاتورة:</label>
+                        <input type="date" id="arInvoiceDate" class="input-field" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="arDueDate">تاريخ الاستحقاق:</label>
+                        <input type="date" id="arDueDate" class="input-field" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="arCustomerName">اسم العميل:</label>
+                        <input type="text" id="arCustomerName" placeholder="اسم العميل" class="input-field">
+                    </div>
+                    <div class="form-group">
+                        <label for="arAmount">المبلغ:</label>
+                        <input type="number" step="0.01" id="arAmount" value="0.00" class="input-field">
+                    </div>
+                    <div class="form-group md:col-span-2">
+                        <label for="arDescription">الوصف:</label>
+                        <textarea id="arDescription" placeholder="وصف الفاتورة" rows="2" class="input-field"></textarea>
+                    </div>
+                </div>
+                <button onclick="addArInvoice()" class="btn-primary w-full mt-4">إضافة فاتورة</button>
+            </div>
+
+            <div class="card">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-700">فواتير العملاء المستحقة</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
+                        <thead>
+                            <tr>
+                                <th class="table-header">رقم الفاتورة</th>
+                                <th class="table-header">العميل</th>
+                                <th class="table-header">تاريخ الفاتورة</th>
+                                <th class="table-header">تاريخ الاستحقاق</th>
+                                <th class="table-header">المبلغ</th>
+                                <th class="table-header">الحالة</th>
+                                <th class="table-header">إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="arInvoicesList" class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="7" class="table-cell text-center text-gray-500">لا توجد فواتير عملاء.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="accounts-payable" class="content-section hidden">
+            <div class="card mb-6">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-700">إضافة فاتورة مورد جديدة</h3>
+                <p class="text-gray-600 mb-4">
+                    <span class="font-bold text-blue-500">ملاحظة:</span> هذه الواجهة تحاكي إضافة الفواتير وتحديث الأرصدة في التخزين المحلي للمتصفح.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="apBillDate">تاريخ الفاتورة:</label>
+                        <input type="date" id="apBillDate" class="input-field" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="apDueDate">تاريخ الاستحقاق:</label>
+                        <input type="date" id="apDueDate" class="input-field" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="apSupplierName">اسم المورد:</label>
+                        <input type="text" id="apSupplierName" placeholder="اسم المورد" class="input-field">
+                    </div>
+                    <div class="form-group">
+                        <label for="apAmount">المبلغ:</label>
+                        <input type="number" step="0.01" id="apAmount" value="0.00" class="input-field">
+                    </div>
+                    <div class="form-group md:col-span-2">
+                        <label for="apDescription">الوصف:</label>
+                        <textarea id="apDescription" placeholder="وصف الفاتورة" rows="2" class="input-field"></textarea>
+                    </div>
+                </div>
+                <button onclick="addApBill()" class="btn-primary w-full mt-4">إضافة فاتورة</button>
+            </div>
+
+            <div class="card">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-700">فواتير الموردين المستحقة</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
+                        <thead>
+                            <tr>
+                                <th class="table-header">رقم الفاتورة</th>
+                                <th class="table-header">المورد</th>
+                                <th class="table-header">تاريخ الفاتورة</th>
+                                <th class="table-header">تاريخ الاستحقاق</th>
+                                <th class="table-header">المبلغ</th>
+                                <th class="table-header">الحالة</th>
+                                <th class="table-header">إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="apBillsList" class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="7" class="table-cell text-center text-gray-500">لا توجد فواتير موردين.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="inventory-management" class="content-section hidden">
+            <div class="card mb-6">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-700">إضافة/تعديل منتج</h3>
+                <p class="text-gray-600 mb-4">
+                    <span class="font-bold text-blue-500">ملاحظة:</span> هذه الواجهة تحاكي إدارة المخزون وتحديث الأرصدة في التخزين المحلي للمتصفح.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="invProductId">معرف المنتج:</label>
+                        <input type="text" id="invProductId" placeholder="معرف فريد" class="input-field">
+                    </div>
+                    <div class="form-group">
+                        <label for="invProductName">اسم المنتج:</label>
+                        <input type="text" id="invProductName" placeholder="اسم المنتج" class="input-field">
+                    </div>
+                    <div class="form-group">
+                        <label for="invProductCost">تكلفة الوحدة:</label>
+                        <input type="number" step="0.01" id="invProductCost" value="0.00" class="input-field">
+                    </div>
+                    <div class="form-group">
+                        <label for="invProductPrice">سعر البيع:</label>
+                        <input type="number" step="0.01" id="invProductPrice" value="0.00" class="input-field">
+                    </div>
+                    <div class="form-group">
+                        <label for="invProductStock">الكمية الأولية:</label>
+                        <input type="number" step="1" id="invProductStock" value="0" class="input-field">
+                    </div>
+                </div>
+                <button onclick="addOrUpdateProduct()" class="btn-primary w-full mt-4">حفظ المنتج</button>
+            </div>
+
+            <div class="card">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-700">المخزون الحالي</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
+                        <thead>
+                            <tr>
+                                <th class="table-header">معرف المنتج</th>
+                                <th class="table-header">اسم المنتج</th>
+                                <th class="table-header">المخزون الحالي</th>
+                                <th class="table-header">تكلفة الوحدة</th>
+                                <th class="table-header">سعر البيع</th>
+                                <th class="table-header">قيمة المخزون</th>
+                                <th class="table-header">إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryList" class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="7" class="table-cell text-center text-gray-500">لا توجد منتجات في المخزون.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="cash-accounts" class="content-section hidden">
+            <div class="card mb-6">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-700">إدارة الصناديق والحسابات البنكية</h3>
+                <p class="text-gray-600 mb-4">
+                    <span class="font-bold text-blue-500">ملاحظة:</span> هذه الواجهة تحاكي إدارة الصناديق وتحديث الأرصدة في التخزين المحلي للمتصفح.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="cashAccountName">اسم الصندوق/الحساب:</label>
+                        <input type="text" id="cashAccountName" placeholder="مثال: صندوق الكاش، بنك الرياض" class="input-field">
+                    </div>
+                    <div class="form-group">
+                        <label for="cashAccountBalance">الرصيد الأولي:</label>
+                        <input type="number" step="0.01" id="cashAccountBalance" value="0.00" class="input-field">
+                    </div>
+                </div>
+                <button onclick="addCashAccount()" class="btn-primary w-full mt-4">إضافة صندوق/حساب</button>
+            </div>
+
+            <div class="card mb-6">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-700">حركة الصندوق/البنك</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="form-group">
+                        <label for="cashMoveAccount">اختر الحساب:</label>
+                        <select id="cashMoveAccount" class="input-field"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="cashMoveType">نوع الحركة:</label>
+                        <select id="cashMoveType" class="input-field">
+                            <option value="deposit">إيداع (زيادة)</option>
+                            <option value="withdrawal">سحب (نقصان)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="cashMoveAmount">المبلغ:</label>
+                        <input type="number" step="0.01" id="cashMoveAmount" value="0.00" class="input-field">
+                    </div>
+                    <div class="form-group md:col-span-3">
+                        <label for="cashMoveDescription">الوصف:</label>
+                        <textarea id="cashMoveDescription" placeholder="وصف الحركة" rows="2" class="input-field"></textarea>
+                    </div>
+                </div>
+                <button onclick="recordCashMovement()" class="btn-primary w-full mt-4">تسجيل الحركة</button>
+            </div>
+
+            <div class="card">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-700">أرصدة الصناديق والحسابات البنكية</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
+                        <thead>
+                            <tr>
+                                <th class="table-header">اسم الصندوق/الحساب</th>
+                                <th class="table-header">الرصيد الحالي</th>
+                                <th class="table-header">إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cashAccountsList" class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="3" class="table-cell text-center text-gray-500">لا توجد صناديق/حسابات.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="reports" class="content-section hidden">
+            <div class="card">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-700">التقارير المالية</h3>
+                <p class="text-gray-600 mb-4">
+                    هنا يمكنك توليد وعرض التقارير المالية الرئيسية.
+                    <br>
+                    <span class="font-bold text-red-500">ملاحظة هامة:</span> توليد هذه التقارير بشكل ديناميكي ودقيق يتطلب معالجة بيانات معقدة على الخادم.
+                </p>
+                <ul class="list-disc list-inside text-gray-700">
+                    <li class="mb-2"><i class="fas fa-file-alt ml-2 text-blue-500"></i> قائمة الدخل (Profit & Loss Statement)</li>
+                    <li class="mb-2"><i class="fas fa-balance-scale ml-2 text-green-500"></i> الميزانية العمومية (Balance Sheet)</li>
+                    <li class="mb-2"><i class="fas fa-exchange-alt ml-2 text-purple-500"></i> قائمة التدفقات النقدية (Cash Flow Statement)</li>
+                    <li class="mb-2"><i class="fas fa-chart-pie ml-2 text-yellow-500"></i> تقارير المبيعات التفصيلية</li>
+                    <li class="mb-2"><i class="fas fa-box-open ml-2 text-orange-500"></i> تقارير حركة المخزون</li>
+                    <li class="mb-2"><i class="fas fa-money-check-alt ml-2 text-red-500"></i> تقارير الضرائب (VAT)</li>
+                </ul>
+                <button onclick="printCurrentView()" class="btn-secondary mt-6">طباعة العرض الحالي</button>
+            </div>
+        </div>
+
+        <div id="settings" class="content-section hidden">
+            <div class="card">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-700">الإعدادات</h3>
+                <p class="text-gray-600 mb-4">
+                    هنا يمكن إدارة إعدادات النظام، مثل: المستخدمين والصلاحيات، شجرة الحسابات، إعدادات الضريبة، إلخ.
+                    <br>
+                    <span class="font-bold text-red-500">ملاحظة:</span> هذه الإعدادات تتطلب تفاعلاً مع الخادم وقاعدة البيانات.
+                </p>
+                <ul class="list-disc list-inside text-gray-700">
+                    <li class="mb-2"><i class="fas fa-users-cog ml-2 text-indigo-500"></i> إدارة المستخدمين والصلاحيات</li>
+                    <li class="mb-2"><i class="fas fa-sitemap ml-2 text-teal-500"></i> تعديل شجرة الحسابات</li>
+                    <li class="mb-2"><i class="fas fa-percent ml-2 text-pink-500"></i> إعدادات الضريبة (VAT)</li>
+                    <li class="mb-2"><i class="fas fa-file-upload ml-2 text-gray-500"></i> استيراد/تصدير البيانات</li>
+                </ul>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- رسالة التنبيه المخصصة (بديل لـ alert) -->
+    <div id="customAlert" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-8 rounded-lg shadow-xl max-w-sm w-full text-center">
+            <p id="alertMessage" class="text-lg font-semibold mb-6 text-gray-800"></p>
+            <button onclick="closeAlert()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300">موافق</button>
+        </div>
+    </div>
+
+    <script>
+        // ***********************************************************************************
+        // * محاكاة قاعدة البيانات (باستخدام localStorage)
+        // * في نظام حقيقي، ستكون هذه البيانات مخزنة في قاعدة بيانات SQL على الخادم
+        // * وسيتم جلبها وإرسالها عبر واجهة برمجة تطبيقات (API)
+        // ***********************************************************************************
+
+        // البيانات الأولية للحسابات (شجرة الحسابات المبسطة)
+        let accounts = JSON.parse(localStorage.getItem('accounts')) || [
+            { id: '1010', name: 'النقدية', type: 'asset', balance: 0 },
+            { id: '1020', name: 'البنك', type: 'asset', balance: 0 },
+            { id: '1300', name: 'حسابات العملاء (قبض)', type: 'asset', balance: 0 },
+            { id: '1200', name: 'المخزون', type: 'asset', balance: 0 },
+            { id: '2010', name: 'حسابات الموردين (دفع)', type: 'liability', balance: 0 },
+            { id: '3000', name: 'رأس المال', type: 'equity', balance: 0 },
+            { id: '4000', name: 'إيرادات المبيعات', type: 'revenue', balance: 0 },
+            { id: '5000', name: 'تكلفة البضاعة المباعة', type: 'expense', balance: 0 },
+            { id: '6000', name: 'مصروفات إيجار', type: 'expense', balance: 0 },
+            { id: '6100', name: 'مصروفات رواتب', type: 'expense', balance: 0 },
+            { id: '9000', name: 'الأرباح والخسائر', type: 'revenue', balance: 0 } // حساب وسيط للربح
+        ];
+
+        // قيود اليومية
+        let journalEntries = JSON.parse(localStorage.getItem('journalEntries')) || [];
+
+        // فواتير العملاء (حسابات القبض)
+        let arInvoices = JSON.parse(localStorage.getItem('arInvoices')) || [];
+
+        // فواتير الموردين (حسابات الدفع)
+        let apBills = JSON.parse(localStorage.getItem('apBills')) || [];
+
+        // المنتجات (لإدارة المخزون)
+        let products = JSON.parse(localStorage.getItem('products')) || [
+            { id: 'P001', name: 'قميص كلاسيك أبيض', cost: 80.00, price: 120.00, stock: 50 },
+            { id: 'P002', name: 'بنطلون جينز أزرق', cost: 100.00, price: 150.00, stock: 30 }
+        ];
+
+        // الصناديق والحسابات البنكية
+        let cashAccounts = JSON.parse(localStorage.getItem('cashAccounts')) || [
+            { id: 'CA001', name: 'صندوق الكاش الرئيسي', balance: 5000.00 },
+            { id: 'CA002', name: 'حساب بنك الرياض', balance: 10000.00 }
+        ];
+
+        // ***********************************************************************************
+        // * وظائف المساعدة العامة
+        // ***********************************************************************************
+
+        // دالة لعرض رسالة تنبيه مخصصة بدلاً من alert()
+        function showAlert(message) {
+            document.getElementById('alertMessage').textContent = message;
+            document.getElementById('customAlert').classList.remove('hidden');
+        }
+
+        // دالة لإغلاق رسالة التنبيه المخصصة
+        function closeAlert() {
+            document.getElementById('customAlert').classList.add('hidden');
+        }
+
+        // حفظ جميع البيانات في localStorage
+        function saveData() {
+            localStorage.setItem('accounts', JSON.stringify(accounts));
+            localStorage.setItem('journalEntries', JSON.stringify(journalEntries));
+            localStorage.setItem('arInvoices', JSON.stringify(arInvoices));
+            localStorage.setItem('apBills', JSON.stringify(apBills));
+            localStorage.setItem('products', JSON.stringify(products));
+            localStorage.setItem('cashAccounts', JSON.stringify(cashAccounts));
+        }
+
+        // الحصول على التاريخ الحالي بتنسيق YYYY-MM-DD
+        function getCurrentDate() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // ***********************************************************************************
+        // * وظائف تحديث الواجهة (Rendering Functions)
+        // ***********************************************************************************
+
+        // تحديث لوحة التحكم (Dashboard)
+        function renderDashboard() {
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+
+            let totalSales = 0;
+            let totalExpenses = 0;
+            let totalAssets = 0;
+
+            // حساب إجمالي المبيعات والمصروفات للشهر الحالي
+            journalEntries.forEach(entry => {
+                const entryDate = new Date(entry.date);
+                if (entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear) {
+                    entry.lines.forEach(line => {
+                        const account = accounts.find(acc => acc.id === line.accountId);
+                        if (account) {
+                            if (account.id === '4000') { // إيرادات المبيعات
+                                totalSales += line.credit;
+                            } else if (account.type === 'expense') { // أي حساب مصروف
+                                totalExpenses += line.debit;
+                            }
+                        }
+                    });
+                }
+            });
+
+            // حساب إجمالي الأصول
+            accounts.forEach(account => {
+                if (account.type === 'asset') {
+                    totalAssets += account.balance;
+                }
+            });
+
+            document.getElementById('totalSales').textContent = totalSales.toFixed(2);
+            document.getElementById('totalExpenses').textContent = totalExpenses.toFixed(2);
+            document.getElementById('netProfit').textContent = (totalSales - totalExpenses).toFixed(2);
+            document.getElementById('totalAssets').textContent = totalAssets.toFixed(2);
+
+            // آخر 5 قيود يومية في لوحة التحكم
+            const dashboardJournalEntriesBody = document.getElementById('dashboardJournalEntries');
+            dashboardJournalEntriesBody.innerHTML = '';
+            if (journalEntries.length === 0) {
+                dashboardJournalEntriesBody.innerHTML = `<tr><td colspan="5" class="table-cell text-center text-gray-500">لا توجد قيود يومية لعرضها.</td></tr>`;
+                return;
+            }
+            journalEntries.slice(0, 5).forEach(entry => {
+                const row = document.createElement('tr');
+                const totalDebit = entry.lines.reduce((sum, line) => sum + line.debit, 0);
+                const totalCredit = entry.lines.reduce((sum, line) => sum + line.credit, 0);
+                row.innerHTML = `
+                    <td class="table-cell">${entry.date}</td>
+                    <td class="table-cell">${entry.ref || 'N/A'}</td>
+                    <td class="table-cell">${entry.description}</td>
+                    <td class="table-cell">${totalDebit.toFixed(2)}</td>
+                    <td class="table-cell">${totalCredit.toFixed(2)}</td>
+                `;
+                dashboardJournalEntriesBody.appendChild(row);
+            });
+        }
+
+        // تحديث جدول دفتر الأستاذ العام
+        function renderGeneralLedger() {
+            const generalLedgerAccountsBody = document.getElementById('generalLedgerAccounts');
+            generalLedgerAccountsBody.innerHTML = '';
+            if (accounts.length === 0) {
+                generalLedgerAccountsBody.innerHTML = `<tr><td colspan="4" class="table-cell text-center text-gray-500">لا توجد حسابات لعرضها.</td></tr>`;
+                return;
+            }
+            accounts.forEach(account => {
+                const row = document.createElement('tr');
+                let debitBalance = 0;
+                let creditBalance = 0;
+
+                // تحديد طبيعة الحساب لتحديد الرصيد المدين أو الدائن
+                if (['asset', 'expense'].includes(account.type)) { // الأصول والمصروفات طبيعتها مدينة
+                    if (account.balance >= 0) {
+                        debitBalance = account.balance;
+                    } else {
+                        creditBalance = Math.abs(account.balance); // رصيد دائن غير طبيعي
+                    }
+                } else if (['liability', 'equity', 'revenue'].includes(account.type)) { // الالتزامات وحقوق الملكية والإيرادات طبيعتها دائنة
+                    if (account.balance >= 0) {
+                        creditBalance = account.balance;
+                    } else {
+                        debitBalance = Math.abs(account.balance); // رصيد مدين غير طبيعي
+                    }
+                }
+
+                row.innerHTML = `
+                    <td class="table-cell">${account.id}</td>
+                    <td class="table-cell">${account.name}</td>
+                    <td class="table-cell">${debitBalance.toFixed(2)}</td>
+                    <td class="table-cell">${creditBalance.toFixed(2)}</td>
+                `;
+                generalLedgerAccountsBody.appendChild(row);
+            });
+        }
+
+        // تحديث جدول قيود اليومية
+        function renderJournalEntries() {
+            const journalEntriesListBody = document.getElementById('journalEntriesList');
+            journalEntriesListBody.innerHTML = '';
+            if (journalEntries.length === 0) {
+                journalEntriesListBody.innerHTML = `<tr><td colspan="6" class="table-cell text-center text-gray-500">لا توجد قيود يومية.</td></tr>`;
+                return;
+            }
+            journalEntries.forEach((entry, index) => {
+                const row = document.createElement('tr');
+                const totalDebit = entry.lines.reduce((sum, line) => sum + line.debit, 0);
+                const totalCredit = entry.lines.reduce((sum, line) => sum + line.credit, 0);
+                row.innerHTML = `
+                    <td class="table-cell">${entry.date}</td>
+                    <td class="table-cell">${entry.ref || ''}</td>
+                    <td class="table-cell">${entry.description}</td>
+                    <td class="table-cell">${totalDebit.toFixed(2)}</td>
+                    <td class="table-cell">${totalCredit.toFixed(2)}</td>
+                    <td class="table-cell">
+                        <button onclick="deleteJournalEntry(${index})" class="btn-danger text-sm">حذف</button>
+                    </td>
+                `;
+                journalEntriesListBody.appendChild(row);
+            });
+        }
+
+        // تحديث قائمة فواتير العملاء (حسابات القبض)
+        function renderArInvoices() {
+            const arInvoicesListBody = document.getElementById('arInvoicesList');
+            arInvoicesListBody.innerHTML = '';
+            if (arInvoices.length === 0) {
+                arInvoicesListBody.innerHTML = `<tr><td colspan="7" class="table-cell text-center text-gray-500">لا توجد فواتير عملاء.</td></tr>`;
+                return;
+            }
+            arInvoices.forEach((invoice, index) => {
+                const row = document.createElement('tr');
+                const statusClass = invoice.status === 'Paid' ? 'text-green-500' : 'text-red-500';
+                const actionButton = invoice.status !== 'Paid' ?
+                    `<button onclick="markArInvoicePaid(${index})" class="btn-primary text-sm">دفع</button>` :
+                    `<span class="text-gray-500 text-sm">مدفوع</span>`;
+                row.innerHTML = `
+                    <td class="table-cell">${invoice.id}</td>
+                    <td class="table-cell">${invoice.customerName}</td>
+                    <td class="table-cell">${invoice.invoiceDate}</td>
+                    <td class="table-cell">${invoice.dueDate}</td>
+                    <td class="table-cell">${invoice.amount.toFixed(2)}</td>
+                    <td class="table-cell ${statusClass}">${invoice.status === 'Paid' ? 'مدفوع' : 'مستحق'}</td>
+                    <td class="table-cell flex gap-2">
+                        ${actionButton}
+                        <button onclick="deleteArInvoice(${index})" class="btn-danger text-sm">حذف</button>
+                    </td>
+                `;
+                arInvoicesListBody.appendChild(row);
+            });
+        }
+
+        // تحديث قائمة فواتير الموردين (حسابات الدفع)
+        function renderApBills() {
+            const apBillsListBody = document.getElementById('apBillsList');
+            apBillsListBody.innerHTML = '';
+            if (apBills.length === 0) {
+                apBillsListBody.innerHTML = `<tr><td colspan="7" class="table-cell text-center text-gray-500">لا توجد فواتير موردين.</td></tr>`;
+                return;
+            }
+            apBills.forEach((bill, index) => {
+                const row = document.createElement('tr');
+                const statusClass = bill.status === 'Paid' ? 'text-green-500' : 'text-red-500';
+                const actionButton = bill.status !== 'Paid' ?
+                    `<button onclick="markApBillPaid(${index})" class="btn-primary text-sm">دفع</button>` :
+                    `<span class="text-gray-500 text-sm">مدفوع</span>`;
+                row.innerHTML = `
+                    <td class="table-cell">${bill.id}</td>
+                    <td class="table-cell">${bill.supplierName}</td>
+                    <td class="table-cell">${bill.billDate}</td>
+                    <td class="table-cell">${bill.dueDate}</td>
+                    <td class="table-cell">${bill.amount.toFixed(2)}</td>
+                    <td class="table-cell ${statusClass}">${bill.status === 'Paid' ? 'مدفوع' : 'مستحق'}</td>
+                    <td class="table-cell flex gap-2">
+                        ${actionButton}
+                        <button onclick="deleteApBill(${index})" class="btn-danger text-sm">حذف</button>
+                    </td>
+                `;
+                apBillsListBody.appendChild(row);
+            });
+        }
+
+        // تحديث جدول المخزون
+        function renderInventory() {
+            const inventoryListBody = document.getElementById('inventoryList');
+            inventoryListBody.innerHTML = '';
+            if (products.length === 0) {
+                inventoryListBody.innerHTML = `<tr><td colspan="7" class="table-cell text-center text-gray-500">لا توجد منتجات في المخزون.</td></tr>`;
+                return;
+            }
+            products.forEach((product, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="table-cell">${product.id}</td>
+                    <td class="table-cell">${product.name}</td>
+                    <td class="table-cell">${product.stock}</td>
+                    <td class="table-cell">${product.cost.toFixed(2)}</td>
+                    <td class="table-cell">${product.price.toFixed(2)}</td>
+                    <td class="table-cell">${(product.stock * product.cost).toFixed(2)}</td>
+                    <td class="table-cell flex gap-2">
+                        <button onclick="editProduct(${index})" class="btn-secondary text-sm">تعديل</button>
+                        <button onclick="deleteProduct(${index})" class="btn-danger text-sm">حذف</button>
+                    </td>
+                `;
+                inventoryListBody.appendChild(row);
+            });
+        }
+
+        // تحديث جدول الصناديق والحسابات البنكية
+        function renderCashAccounts() {
+            const cashAccountsListBody = document.getElementById('cashAccountsList');
+            cashAccountsListBody.innerHTML = '';
+            if (cashAccounts.length === 0) {
+                cashAccountsListBody.innerHTML = `<tr><td colspan="3" class="table-cell text-center text-gray-500">لا توجد صناديق/حسابات.</td></tr>`;
+                return;
+            }
+            cashAccounts.forEach((account, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="table-cell">${account.name}</td>
+                    <td class="table-cell">${account.balance.toFixed(2)}</td>
+                    <td class="table-cell">
+                        <button onclick="deleteCashAccount(${index})" class="btn-danger text-sm">حذف</button>
+                    </td>
+                `;
+                cashAccountsListBody.appendChild(row);
+            });
+
+            // تحديث قائمة اختيار الحسابات في قسم حركة الصندوق/البنك
+            const cashMoveAccountSelect = document.getElementById('cashMoveAccount');
+            cashMoveAccountSelect.innerHTML = '';
+            cashAccounts.forEach(account => {
+                const option = document.createElement('option');
+                option.value = account.id;
+                option.textContent = account.name;
+                cashMoveAccountSelect.appendChild(option);
+            });
+        }
+
+        // ***********************************************************************************
+        // * وظائف إدارة البيانات (CRUD Operations - Simulated)
+        // ***********************************************************************************
+
+        // قيود اليومية
+        function addJournalLine() {
+            const container = document.getElementById('journalLinesContainer');
+            const newLine = document.createElement('div');
+            newLine.className = 'grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 journal-line';
+            newLine.innerHTML = `
+                <div class="form-group">
+                    <label>الحساب:</label>
+                    <select class="input-field journal-account-select"></select>
+                </div>
+                <div class="form-group">
+                    <label>مدين:</label>
+                    <input type="number" step="0.01" value="0.00" class="input-field journal-debit" oninput="updateJournalTotals()">
+                </div>
+                <div class="form-group">
+                    <label>دائن:</label>
+                    <input type="number" step="0.01" value="0.00" class="input-field journal-credit" oninput="updateJournalTotals()">
+                </div>
+                <div class="form-group flex items-end">
+                    <button onclick="removeJournalLine(this)" class="btn-danger w-full">إزالة</button>
+                </div>
+            `;
+            container.appendChild(newLine);
+            populateAccountSelect(newLine.querySelector('.journal-account-select'));
+            updateJournalTotals();
+        }
+
+        function removeJournalLine(button) {
+            button.closest('.journal-line').remove();
+            updateJournalTotals();
+        }
+
+        function populateAccountSelect(selectElement) {
+            selectElement.innerHTML = '';
+            accounts.forEach(account => {
+                const option = document.createElement('option');
+                option.value = account.id;
+                option.textContent = `${account.id} - ${account.name}`;
+                selectElement.appendChild(option);
+            });
+        }
+
+        function updateJournalTotals() {
+            let totalDebit = 0;
+            let totalCredit = 0;
+            document.querySelectorAll('.journal-line').forEach(line => {
+                totalDebit += parseFloat(line.querySelector('.journal-debit').value) || 0;
+                totalCredit += parseFloat(line.querySelector('.journal-credit').value) || 0;
+            });
+            document.getElementById('journalDebitTotal').textContent = totalDebit.toFixed(2);
+            document.getElementById('journalCreditTotal').textContent = totalCredit.toFixed(2);
+        }
+
+        function saveJournalEntry() {
+            const date = document.getElementById('journalDate').value;
+            const ref = document.getElementById('journalRef').value;
+            const description = document.getElementById('journalDescription').value;
+            const lines = [];
+            let totalDebit = 0;
+            let totalCredit = 0;
+
+            document.querySelectorAll('.journal-line').forEach(lineElement => {
+                const accountId = lineElement.querySelector('.journal-account-select').value;
+                const debit = parseFloat(lineElement.querySelector('.journal-debit').value) || 0;
+                const credit = parseFloat(lineElement.querySelector('.journal-credit').value) || 0;
+
+                if (!accountId || (debit === 0 && credit === 0)) {
+                    showAlert('الرجاء إدخال حساب ومبلغ (مدين أو دائن) لكل سطر.');
+                    return;
+                }
+                if (debit > 0 && credit > 0) {
+                    showAlert('لا يمكن أن يكون السطر مدينًا ودائنًا في نفس الوقت.');
+                    return;
+                }
+
+                lines.push({ accountId, debit, credit });
+                totalDebit += debit;
+                totalCredit += credit;
+            });
+
+            if (totalDebit !== totalCredit) {
+                showAlert('يجب أن يتساوى إجمالي المدين مع إجمالي الدائن.');
+                return;
+            }
+            if (!date || !description || lines.length === 0) {
+                showAlert('الرجاء ملء جميع الحقول المطلوبة وإضافة سطور القيد.');
+                return;
+            }
+
+            // تحديث أرصدة الحسابات
+            lines.forEach(line => {
+                const account = accounts.find(acc => acc.id === line.accountId);
+                if (account) {
+                    // منطق تحديث الرصيد بناءً على نوع الحساب
+                    if (account.type === 'asset' || account.type === 'expense') {
+                        account.balance += line.debit;
+                        account.balance -= line.credit;
+                    } else if (account.type === 'liability' || account.type === 'equity' || account.type === 'revenue') {
+                        account.balance -= line.debit;
+                        account.balance += line.credit;
+                    }
+                }
+            });
+
+            const newEntry = {
+                id: `JE-${Date.now()}`,
+                date,
+                ref,
+                description,
+                lines
+            };
+            journalEntries.unshift(newEntry); // إضافة الأحدث أولاً
+            saveData();
+            showAlert('تم حفظ قيد اليومية بنجاح (محاكاة)!');
+            resetJournalEntryForm();
+            renderAllSections(); // إعادة عرض جميع الأقسام لتحديث البيانات
+        }
+
+        function deleteJournalEntry(index) {
+            if (confirm('هل أنت متأكد من حذف هذا القيد؟ سيؤثر ذلك على أرصدة الحسابات.')) {
+                const entryToDelete = journalEntries[index];
+                // عكس تأثير القيد على أرصدة الحسابات
+                entryToDelete.lines.forEach(line => {
+                    const account = accounts.find(acc => acc.id === line.accountId);
+                    if (account) {
+                        if (account.type === 'asset' || account.type === 'expense') {
+                            account.balance -= line.debit; // عكس المدين
+                            account.balance += line.credit; // عكس الدائن
+                        } else if (account.type === 'liability' || account.type === 'equity' || account.type === 'revenue') {
+                            account.balance += line.debit; // عكس المدين
+                            account.balance -= line.credit; // عكس الدائن
+                        }
+                    }
+                });
+                journalEntries.splice(index, 1);
+                saveData();
+                showAlert('تم حذف قيد اليومية بنجاح (محاكاة)!');
+                renderAllSections();
+            }
+        }
+
+        function resetJournalEntryForm() {
+            document.getElementById('journalDate').value = getCurrentDate();
+            document.getElementById('journalRef').value = '';
+            document.getElementById('journalDescription').value = '';
+            document.getElementById('journalLinesContainer').innerHTML = ''; // مسح جميع السطور
+            addJournalLine(); // إضافة سطر فارغ واحد
+            updateJournalTotals();
+        }
+
+        // حسابات القبض (AR)
+        function addArInvoice() {
+            const id = `INV-${Date.now().toString().slice(-6)}`;
+            const invoiceDate = document.getElementById('arInvoiceDate').value;
+            const dueDate = document.getElementById('arDueDate').value;
+            const customerName = document.getElementById('arCustomerName').value;
+            const amount = parseFloat(document.getElementById('arAmount').value);
+            const description = document.getElementById('arDescription').value;
+
+            if (!invoiceDate || !dueDate || !customerName || isNaN(amount) || amount <= 0) {
+                showAlert('الرجاء ملء جميع حقول فاتورة العميل بشكل صحيح.');
+                return;
+            }
+
+            const newInvoice = { id, invoiceDate, dueDate, customerName, amount, description, status: 'Outstanding' };
+            arInvoices.unshift(newInvoice);
+            saveData();
+            showAlert('تم إضافة فاتورة العميل بنجاح (محاكاة)!');
+            renderArInvoices();
+
+            // محاكاة قيد اليومية لفاتورة المبيعات الآجلة
+            // مدين: حسابات العملاء (قبض)
+            // دائن: إيرادات المبيعات
+            const arAccount = accounts.find(acc => acc.id === '1300'); // حسابات العملاء (قبض)
+            const salesRevenueAccount = accounts.find(acc => acc.id === '4000'); // إيرادات المبيعات
+
+            if (arAccount && salesRevenueAccount) {
+                arAccount.balance += amount; // زيادة رصيد العملاء
+                salesRevenueAccount.balance += amount; // زيادة إيرادات المبيعات
+
+                const journalEntryForInvoice = {
+                    id: `JE-AR-${id}`,
+                    date: invoiceDate,
+                    ref: id,
+                    description: `فاتورة مبيعات للعميل ${customerName}`,
+                    lines: [
+                        { accountId: '1300', debit: amount, credit: 0 },
+                        { accountId: '4000', debit: 0, credit: amount }
+                    ]
+                };
+                journalEntries.unshift(journalEntryForInvoice);
+                saveData(); // حفظ تحديثات الحسابات والقيود
+                renderAllSections(); // تحديث الواجهة
+            } else {
+                console.error('Account not found for AR invoice journal entry.');
+            }
+
+            // مسح الحقول
+            document.getElementById('arInvoiceDate').value = getCurrentDate();
+            document.getElementById('arDueDate').value = '';
+            document.getElementById('arCustomerName').value = '';
+            document.getElementById('arAmount').value = '0.00';
+            document.getElementById('arDescription').value = '';
+        }
+
+        function markArInvoicePaid(index) {
+            const invoice = arInvoices[index];
+            if (invoice.status === 'Outstanding') {
+                invoice.status = 'Paid';
+                saveData();
+                showAlert(`تم تسجيل دفع فاتورة ${invoice.id} بنجاح (محاكاة)!`);
+                renderArInvoices();
+
+                // محاكاة قيد اليومية للدفع
+                // مدين: النقدية/البنك
+                // دائن: حسابات العملاء (قبض)
+                const cashAccount = accounts.find(acc => acc.id === '1010'); // النقدية
+                const bankAccount = accounts.find(acc => acc.id === '1020'); // البنك (يمكن اختيار أي منهما)
+                const arAccount = accounts.find(acc => acc.id === '1300'); // حسابات العملاء (قبض)
+
+                // افتراض أن الدفع يتم في الصندوق الرئيسي (النقدية)
+                let actualCashAccount = cashAccounts.find(acc => acc.id === 'CA001'); // صندوق الكاش الرئيسي
+                let glAccountToAffect = cashAccount;
+
+                if (actualCashAccount && glAccountToAffect && arAccount) {
+                    actualCashAccount.balance += invoice.amount; // زيادة رصيد الصندوق النقدي
+                    glAccountToAffect.balance += invoice.amount; // زيادة رصيد حساب GL للنقدية
+                    arAccount.balance -= invoice.amount; // تخفيض رصيد العملاء
+
+                    const journalEntryForPayment = {
+                        id: `JE-AR-PAY-${invoice.id}`,
+                        date: getCurrentDate(),
+                        ref: `PAY-${invoice.id}`,
+                        description: `تحصيل فاتورة العميل ${invoice.customerName}`,
+                        lines: [
+                            { accountId: glAccountToAffect.id, debit: invoice.amount, credit: 0 },
+                            { accountId: '1300', debit: 0, credit: invoice.amount }
+                        ]
+                    };
+                    journalEntries.unshift(journalEntryForPayment);
+                    saveData();
+                    renderAllSections();
+                } else {
+                    console.error('Account not found for AR payment journal entry.');
+                    showAlert('حدث خطأ: لم يتم العثور على حساب النقدية أو العملاء.');
+                }
+            }
+        }
+
+        function deleteArInvoice(index) {
+            if (confirm('هل أنت متأكد من حذف هذه الفاتورة؟ سيؤثر ذلك على أرصدة الحسابات.')) {
+                const invoiceToDelete = arInvoices[index];
+                // عكس قيد اليومية الأصلي إذا لم تكن مدفوعة
+                const arAccount = accounts.find(acc => acc.id === '1300');
+                const salesRevenueAccount = accounts.find(acc => acc.id === '4000');
+                const cashAccount = accounts.find(acc => acc.id === '1010'); // النقدية
+                const actualCashAccount = cashAccounts.find(acc => acc.id === 'CA001'); // صندوق الكاش الرئيسي
+
+                if (invoiceToDelete.status === 'Outstanding') {
+                    if (arAccount && salesRevenueAccount) {
+                        arAccount.balance -= invoiceToDelete.amount;
+                        salesRevenueAccount.balance -= invoiceToDelete.amount;
+                        // حذف قيد اليومية المرتبط بالفاتورة
+                        journalEntries = journalEntries.filter(je => je.id !== `JE-AR-${invoiceToDelete.id}`);
+                    }
+                } else if (invoiceToDelete.status === 'Paid') {
+                    // إذا كانت مدفوعة، يجب عكس قيد الدفع أيضًا
+                    if (arAccount && cashAccount && actualCashAccount) {
+                        cashAccount.balance -= invoiceToDelete.amount;
+                        actualCashAccount.balance -= invoiceToDelete.amount; // عكس تأثير الصندوق النقدي
+                        arAccount.balance += invoiceToDelete.amount;
+                        // حذف قيد الدفع
+                        journalEntries = journalEntries.filter(je => je.id !== `JE-AR-PAY-${invoiceToDelete.id}`);
+                    }
+                }
+                arInvoices.splice(index, 1);
+                saveData();
+                showAlert('تم حذف فاتورة العميل بنجاح (محاكاة)!');
+                renderAllSections();
+            }
+        }
+
+        // حسابات الدفع (AP)
+        function addApBill() {
+            const id = `BILL-${Date.now().toString().slice(-6)}`;
+            const billDate = document.getElementById('apBillDate').value;
+            const dueDate = document.getElementById('apDueDate').value;
+            const supplierName = document.getElementById('apSupplierName').value;
+            const amount = parseFloat(document.getElementById('apAmount').value);
+            const description = document.getElementById('apDescription').value;
+
+            if (!billDate || !dueDate || !supplierName || isNaN(amount) || amount <= 0) {
+                showAlert('الرجاء ملء جميع حقول فاتورة المورد بشكل صحيح.');
+                return;
+            }
+
+            const newBill = { id, billDate, dueDate, supplierName, amount, description, status: 'Outstanding' };
+            apBills.unshift(newBill);
+            saveData();
+            showAlert('تم إضافة فاتورة المورد بنجاح (محاكاة)!');
+            renderApBills();
+
+            // محاكاة قيد اليومية لفاتورة الشراء الآجلة
+            // مدين: المخزون (أو حساب مصروف إذا كانت خدمة)
+            // دائن: حسابات الموردين (دفع)
+            const inventoryAccount = accounts.find(acc => acc.id === '1200'); // المخزون
+            const apAccount = accounts.find(acc => acc.id === '2010'); // حسابات الموردين (دفع)
+
+            if (inventoryAccount && apAccount) {
+                inventoryAccount.balance += amount; // زيادة المخزون (أو المصروف)
+                apAccount.balance += amount; // زيادة رصيد الموردين
+
+                const journalEntryForBill = {
+                    id: `JE-AP-${id}`,
+                    date: billDate,
+                    ref: id,
+                    description: `فاتورة شراء من المورد ${supplierName}`,
+                    lines: [
+                        { accountId: '1200', debit: amount, credit: 0 }, // افتراض أنها مشتريات مخزون
+                        { accountId: '2010', debit: 0, credit: amount }
+                    ]
+                };
+                journalEntries.unshift(journalEntryForBill);
+                saveData();
+                renderAllSections();
+            } else {
+                console.error('Account not found for AP bill journal entry.');
+            }
+
+            // مسح الحقول
+            document.getElementById('apBillDate').value = getCurrentDate();
+            document.getElementById('apDueDate').value = '';
+            document.getElementById('apSupplierName').value = '';
+            document.getElementById('apAmount').value = '0.00';
+            document.getElementById('apDescription').value = '';
+        }
+
+        function markApBillPaid(index) {
+            const bill = apBills[index];
+            if (bill.status === 'Outstanding') {
+                bill.status = 'Paid';
+                saveData();
+                showAlert(`تم تسجيل دفع فاتورة ${bill.id} بنجاح (محاكاة)!`);
+                renderApBills();
+
+                // محاكاة قيد اليومية للدفع
+                // مدين: حسابات الموردين (دفع)
+                // دائن: النقدية/البنك
+                const apAccount = accounts.find(acc => acc.id === '2010'); // حسابات الموردين (دفع)
+                const cashAccount = accounts.find(acc => acc.id === '1010'); // النقدية
+                const actualCashAccount = cashAccounts.find(acc => acc.id === 'CA001'); // صندوق الكاش الرئيسي
+
+                if (apAccount && cashAccount && actualCashAccount) {
+                    apAccount.balance -= bill.amount; // تخفيض رصيد الموردين
+                    cashAccount.balance -= bill.amount; // تخفيض النقدية
+                    actualCashAccount.balance -= bill.amount; // تخفيض رصيد الصندوق النقدي
+
+                    const journalEntryForPayment = {
+                        id: `JE-AP-PAY-${bill.id}`,
+                        date: getCurrentDate(),
+                        ref: `PAY-${bill.id}`,
+                        description: `دفع فاتورة المورد ${bill.supplierName}`,
+                        lines: [
+                            { accountId: '2010', debit: bill.amount, credit: 0 },
+                            { accountId: '1010', debit: 0, credit: bill.amount }
+                        ]
+                    };
+                    journalEntries.unshift(journalEntryForPayment);
+                    saveData();
+                    renderAllSections();
+                } else {
+                    console.error('Account not found for AP payment journal entry.');
+                    showAlert('حدث خطأ: لم يتم العثور على حساب الموردين أو النقدية.');
+                }
+            }
+        }
+
+        function deleteApBill(index) {
+            if (confirm('هل أنت متأكد من حذف هذه الفاتورة؟ سيؤثر ذلك على أرصدة الحسابات.')) {
+                const billToDelete = apBills[index];
+                const inventoryAccount = accounts.find(acc => acc.id === '1200');
+                const apAccount = accounts.find(acc => acc.id === '2010');
+                const cashAccount = accounts.find(acc => acc.id === '1010');
+                const actualCashAccount = cashAccounts.find(acc => acc.id === 'CA001');
+
+                if (billToDelete.status === 'Outstanding') {
+                    // عكس قيد اليومية الأصلي إذا لم تكن مدفوعة
+                    if (inventoryAccount && apAccount) {
+                        inventoryAccount.balance -= billToDelete.amount;
+                        apAccount.balance -= billToDelete.amount;
+                        journalEntries = journalEntries.filter(je => je.id !== `JE-AP-${billToDelete.id}`);
+                    }
+                } else if (billToDelete.status === 'Paid') {
+                    // إذا كانت مدفوعة، يجب عكس قيد الدفع أيضًا
+                    if (apAccount && cashAccount && actualCashAccount) {
+                        apAccount.balance += billToDelete.amount;
+                        cashAccount.balance += billToDelete.amount;
+                        actualCashAccount.balance += billToDelete.amount; // عكس تأثير الصندوق النقدي
+                        journalEntries = journalEntries.filter(je => je.id !== `JE-AP-PAY-${billToDelete.id}`);
+                    }
+                }
+                apBills.splice(index, 1);
+                saveData();
+                showAlert('تم حذف فاتورة المورد بنجاح (محاكاة)!');
+                renderAllSections();
+            }
+        }
+
+        // إدارة المخزون
+        function addOrUpdateProduct() {
+            const id = document.getElementById('invProductId').value.trim();
+            const name = document.getElementById('invProductName').value.trim();
+            const cost = parseFloat(document.getElementById('invProductCost').value);
+            const price = parseFloat(document.getElementById('invProductPrice').value);
+            const stock = parseInt(document.getElementById('invProductStock').value);
+
+            if (!id || !name || isNaN(cost) || cost <= 0 || isNaN(price) || price <= 0 || isNaN(stock) || stock < 0) {
+                showAlert('الرجاء ملء جميع حقول المنتج بشكل صحيح.');
+                return;
+            }
+
+            const existingProductIndex = products.findIndex(p => p.id === id);
+
+            if (existingProductIndex !== -1) {
+                // تحديث منتج موجود
+                const oldStock = products[existingProductIndex].stock;
+                const stockDifference = stock - oldStock;
+
+                products[existingProductIndex] = { id, name, cost, price, stock };
+                showAlert('تم تحديث المنتج بنجاح (محاكاة)!');
+
+                // محاكاة قيد يومية لتعديل المخزون (إذا تغيرت الكمية)
+                if (stockDifference !== 0) {
+                    const inventoryAccount = accounts.find(acc => acc.id === '1200');
+                    const capitalAccount = accounts.find(acc => acc.id === '3000'); // استخدام رأس المال كحساب مقابل للتعديل الأولي
+
+                    if (inventoryAccount && capitalAccount) {
+                        const amount = Math.abs(stockDifference * cost);
+                        let journalEntry;
+                        if (stockDifference > 0) { // زيادة مخزون
+                            inventoryAccount.balance += amount;
+                            capitalAccount.balance += amount; // افتراض زيادة رأس المال
+                            journalEntry = {
+                                id: `JE-INV-ADD-${Date.now()}`,
+                                date: getCurrentDate(),
+                                ref: `INV-ADJ-${id}`,
+                                description: `زيادة مخزون المنتج ${name} (${stockDifference} وحدة)`,
+                                lines: [
+                                    { accountId: '1200', debit: amount, credit: 0 },
+                                    { accountId: '3000', debit: 0, credit: amount }
+                                ]
+                            };
+                        } else { // نقص مخزون
+                            inventoryAccount.balance -= amount;
+                            capitalAccount.balance -= amount; // افتراض نقص رأس المال
+                            journalEntry = {
+                                id: `JE-INV-REM-${Date.now()}`,
+                                date: getCurrentDate(),
+                                ref: `INV-ADJ-${id}`,
+                                description: `نقص مخزون المنتج ${name} (${Math.abs(stockDifference)} وحدة)`,
+                                lines: [
+                                    { accountId: '3000', debit: amount, credit: 0 },
+                                    { accountId: '1200', debit: 0, credit: amount }
+                                ]
+                            };
+                        }
+                        journalEntries.unshift(journalEntry);
+                    }
+                }
+            } else {
+                // إضافة منتج جديد
+                products.push({ id, name, cost, price, stock });
+                showAlert('تم إضافة المنتج بنجاح (محاكاة)!');
+
+                // محاكاة قيد يومية لإضافة مخزون أولي
+                const inventoryAccount = accounts.find(acc => acc.id === '1200');
+                const capitalAccount = accounts.find(acc => acc.id === '3000'); // استخدام رأس المال كحساب مقابل
+
+                if (inventoryAccount && capitalAccount) {
+                    const amount = stock * cost;
+                    inventoryAccount.balance += amount;
+                    capitalAccount.balance += amount; // زيادة رأس المال بقيمة المخزون الأولي
+
+                    const journalEntryForNewProduct = {
+                        id: `JE-INV-NEW-${Date.now()}`,
+                        date: getCurrentDate(),
+                        ref: `NEW-PROD-${id}`,
+                        description: `إضافة مخزون أولي للمنتج ${name}`,
+                        lines: [
+                            { accountId: '1200', debit: amount, credit: 0 },
+                            { accountId: '3000', debit: 0, credit: amount }
+                        ]
+                    };
+                    journalEntries.unshift(journalEntryForNewProduct);
+                }
+            }
+            saveData();
+            renderInventory();
+            renderAllSections(); // تحديث لوحة التحكم ودفتر الأستاذ
+            // مسح الحقول
+            document.getElementById('invProductId').value = '';
+            document.getElementById('invProductName').value = '';
+            document.getElementById('invProductCost').value = '0.00';
+            document.getElementById('invProductPrice').value = '0.00';
+            document.getElementById('invProductStock').value = '0';
+        }
+
+        function editProduct(index) {
+            const product = products[index];
+            document.getElementById('invProductId').value = product.id;
+            document.getElementById('invProductName').value = product.name;
+            document.getElementById('invProductCost').value = product.cost;
+            document.getElementById('invProductPrice').value = product.price;
+            document.getElementById('invProductStock').value = product.stock;
+            // يمكن إضافة زر "تحديث" بدلاً من "حفظ" هنا إذا أردت فصل الوظائف
+        }
+
+        function deleteProduct(index) {
+            if (confirm('هل أنت متأكد من حذف هذا المنتج؟ سيؤثر ذلك على أرصدة الحسابات.')) {
+                // محاكاة عكس قيد المخزون إذا كان له قيمة
+                const productToDelete = products[index];
+                if (productToDelete.stock > 0) {
+                    const inventoryAccount = accounts.find(acc => acc.id === '1200');
+                    const capitalAccount = accounts.find(acc => acc.id === '3000');
+                    if (inventoryAccount && capitalAccount) {
+                        const amount = productToDelete.stock * productToDelete.cost;
+                        inventoryAccount.balance -= amount;
+                        capitalAccount.balance -= amount;
+                        const journalEntryForDelete = {
+                            id: `JE-INV-DEL-${Date.now()}`,
+                            date: getCurrentDate(),
+                            ref: `DEL-PROD-${productToDelete.id}`,
+                            description: `حذف المنتج ${productToDelete.name} من المخزون`,
+                            lines: [
+                                { accountId: '3000', debit: amount, credit: 0 },
+                                { accountId: '1200', debit: 0, credit: amount }
+                            ]
+                        };
+                        journalEntries.unshift(journalEntryForDelete);
+                    }
+                }
+                products.splice(index, 1);
+                saveData();
+                showAlert('تم حذف المنتج بنجاح (محاكاة)!');
+                renderInventory();
+                renderAllSections();
+            }
+        }
+
+        // الصناديق والحسابات البنكية
+        function addCashAccount() {
+            const name = document.getElementById('cashAccountName').value.trim();
+            const balance = parseFloat(document.getElementById('cashAccountBalance').value);
+
+            if (!name || isNaN(balance)) {
+                showAlert('الرجاء إدخال اسم ورصيد أولي صحيحين.');
+                return;
+            }
+
+            const newAccountId = `CA-${Date.now().toString().slice(-5)}`;
+            cashAccounts.push({ id: newAccountId, name, balance });
+            saveData();
+            showAlert('تم إضافة الصندوق/الحساب بنجاح (محاكاة)!');
+            renderCashAccounts();
+
+            // محاكاة قيد يومية لإضافة رصيد أولي لحساب النقدية/البنك في دفتر الأستاذ
+            const cashGlAccount = accounts.find(acc => acc.id === '1010'); // النقدية
+            const bankGlAccount = accounts.find(acc => acc.id === '1020'); // البنك
+            const capitalAccount = accounts.find(acc => acc.id === '3000'); // رأس المال
+
+            if (capitalAccount) {
+                let targetGlAccount = null;
+                if (name.includes('صندوق') || name.includes('كاش')) {
+                    targetGlAccount = cashGlAccount;
+                } else if (name.includes('بنك')) {
+                    targetGlAccount = bankGlAccount;
+                } else {
+                    targetGlAccount = cashGlAccount; // افتراضيًا إذا لم يتم تحديد نوع
+                }
+
+                if (targetGlAccount) {
+                    targetGlAccount.balance += balance; // زيادة رصيد حساب GL
+                    capitalAccount.balance += balance; // زيادة رأس المال
+
+                    const journalEntryForInitialBalance = {
+                        id: `JE-CA-INIT-${Date.now()}`,
+                        date: getCurrentDate(),
+                        ref: `INIT-BAL-${newAccountId}`,
+                        description: `رصيد افتتاحي للصندوق/الحساب: ${name}`,
+                        lines: [
+                            { accountId: targetGlAccount.id, debit: balance, credit: 0 },
+                            { accountId: '3000', debit: 0, credit: balance }
+                        ]
+                    };
+                    journalEntries.unshift(journalEntryForInitialBalance);
+                    saveData();
+                    renderAllSections();
+                }
+            }
+
+            document.getElementById('cashAccountName').value = '';
+            document.getElementById('cashAccountBalance').value = '0.00';
+        }
+
+        function recordCashMovement() {
+            const accountId = document.getElementById('cashMoveAccount').value;
+            const type = document.getElementById('cashMoveType').value;
+            const amount = parseFloat(document.getElementById('cashMoveAmount').value);
+            const description = document.getElementById('cashMoveDescription').value.trim();
+
+            if (!accountId || isNaN(amount) || amount <= 0 || !description) {
+                showAlert('الرجاء اختيار الحساب، إدخال مبلغ صحيح، ووصف الحركة.');
+                return;
+            }
+
+            const targetCashAccount = cashAccounts.find(acc => acc.id === accountId);
+            const cashGlAccount = accounts.find(acc => acc.id === '1010'); // النقدية
+            const bankGlAccount = accounts.find(acc => acc.id === '1020'); // البنك
+
+            if (targetCashAccount) {
+                let glAccountToAffect = null;
+                if (targetCashAccount.name.includes('صندوق') || targetCashAccount.name.includes('كاش')) {
+                    glAccountToAffect = cashGlAccount;
+                } else if (targetCashAccount.name.includes('بنك')) {
+                    glAccountToAffect = bankGlAccount;
+                } else {
+                    glAccountToAffect = cashGlAccount; // افتراضيًا
+                }
+
+                if (!glAccountToAffect) {
+                    console.error('GL account not found for cash movement.');
+                    showAlert('حدث خطأ: لم يتم العثور على حساب الأستاذ العام المرتبط.');
+                    return;
+                }
+
+                if (type === 'deposit') {
+                    targetCashAccount.balance += amount;
+                    glAccountToAffect.balance += amount;
+
+                    const journalEntry = {
+                        id: `JE-CASH-DEP-${Date.now()}`,
+                        date: getCurrentDate(),
+                        ref: `DEP-${accountId}`,
+                        description: `إيداع في ${targetCashAccount.name}: ${description}`,
+                        lines: [
+                            { accountId: glAccountToAffect.id, debit: amount, credit: 0 },
+                            { accountId: '4000', debit: 0, credit: amount } // افتراض إيراد متنوع
+                        ]
+                    };
+                    journalEntries.unshift(journalEntry);
+                    showAlert('تم تسجيل الإيداع بنجاح (محاكاة)!');
+                } else if (type === 'withdrawal') {
+                    if (targetCashAccount.balance < amount) {
+                        showAlert('الرصيد غير كافٍ لإجراء هذا السحب.');
+                        return;
+                    }
+                    targetCashAccount.balance -= amount;
+                    glAccountToAffect.balance -= amount;
+
+                    const journalEntry = {
+                        id: `JE-CASH-WDL-${Date.now()}`,
+                        date: getCurrentDate(),
+                        ref: `WDL-${accountId}`,
+                        description: `سحب من ${targetCashAccount.name}: ${description}`,
+                        lines: [
+                            { accountId: '6000', debit: amount, credit: 0 }, // افتراض مصروف إيجار
+                            { accountId: glAccountToAffect.id, debit: 0, credit: amount }
+                        ]
+                    };
+                    journalEntries.unshift(journalEntry);
+                    showAlert('تم تسجيل السحب بنجاح (محاكاة)!');
+                }
+                saveData();
+                renderCashAccounts();
+                renderAllSections(); // تحديث لوحة التحكم ودفتر الأستاذ
+                document.getElementById('cashMoveAmount').value = '0.00';
+                document.getElementById('cashMoveDescription').value = '';
+            } else {
+                showAlert('الحساب النقدي المحدد غير موجود.');
+            }
+        }
+
+        function deleteCashAccount(index) {
+            if (confirm('هل أنت متأكد من حذف هذا الصندوق/الحساب؟ سيؤثر ذلك على أرصدة الحسابات.')) {
+                const accountToDelete = cashAccounts[index];
+                // محاكاة عكس تأثير الرصيد الأولي على حسابات GL
+                const cashGlAccount = accounts.find(acc => acc.id === '1010');
+                const bankGlAccount = accounts.find(acc => acc.id === '1020');
+                const capitalAccount = accounts.find(acc => acc.id === '3000');
+
+                let targetGlAccount = null;
+                if (accountToDelete.name.includes('صندوق') || accountToDelete.name.includes('كاش')) {
+                    targetGlAccount = cashGlAccount;
+                } else if (accountToDelete.name.includes('بنك')) {
+                    targetGlAccount = bankGlAccount;
+                }
+
+                if (targetGlAccount && capitalAccount) {
+                    targetGlAccount.balance -= accountToDelete.balance;
+                    capitalAccount.balance -= accountToDelete.balance;
+                    // حذف قيود اليومية المرتبطة بهذا الحساب (هذا تبسيط، في الواقع يتم تتبع القيود بشكل أدق)
+                    journalEntries = journalEntries.filter(je => !je.ref.includes(`INIT-BAL-${accountToDelete.id}`) && !je.ref.includes(`DEP-${accountToDelete.id}`) && !je.ref.includes(`WDL-${accountToDelete.id}`));
+                }
+
+                cashAccounts.splice(index, 1);
+                saveData();
+                showAlert('تم حذف الصندوق/الحساب بنجاح (محاكاة)!');
+                renderCashAccounts();
+                renderAllSections();
+            }
+        }
+
+
+        // طباعة التقارير (وظيفة مبسطة جداً)
+        function printCurrentView() {
+            window.print();
+            showAlert('تم إرسال العرض الحالي للطباعة.');
+        }
+
+        // ***********************************************************************************
+        // * تهيئة التطبيق عند التحميل
+        // ***********************************************************************************
+
+        // منطق التبديل بين الأقسام
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            const contentSections = document.querySelectorAll('.content-section');
+            const mainTitle = document.getElementById('mainTitle');
+
+            // تعيين التاريخ الافتراضي لحقول التاريخ
+            document.getElementById('journalDate').value = getCurrentDate();
+            document.getElementById('arInvoiceDate').value = getCurrentDate();
+            document.getElementById('apBillDate').value = getCurrentDate();
+
+            // وظيفة لعرض قسم معين
+            const showSection = (sectionId) => {
+                // إزالة التفعيل من جميع عناصر الشريط الجانبي
+                sidebarItems.forEach(si => si.classList.remove('active'));
+                // إخفاء جميع أقسام المحتوى
+                contentSections.forEach(cs => cs.classList.add('hidden'));
+
+                // تفعيل العنصر المختار في الشريط الجانبي
+                const activeItem = document.querySelector(`.sidebar-item[data-section="${sectionId}"]`);
+                if (activeItem) {
+                    activeItem.classList.add('active');
+                    mainTitle.textContent = activeItem.querySelector('span').textContent;
+                }
+
+                // إظهار القسم المقابل
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.classList.remove('hidden');
+                } else {
+                    showAlert('القسم المطلوب غير موجود.');
+                }
+            };
+
+            // إضافة مستمعي الأحداث لعناصر الشريط الجانبي
+            sidebarItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetSectionId = item.dataset.section;
+                    showSection(targetSectionId);
+                });
+            });
+
+            // وظيفة لتهيئة وعرض جميع الأقسام عند تحميل الصفحة أو تحديث البيانات
+            window.renderAllSections = () => {
+                renderDashboard();
+                renderGeneralLedger();
+                renderJournalEntries();
+                renderArInvoices();
+                renderApBills();
+                renderInventory();
+                renderCashAccounts();
+                // التأكد من أن قائمة الحسابات في قيد اليومية محدثة
+                const firstJournalLineSelect = document.querySelector('#journalLinesContainer .journal-account-select');
+                if (firstJournalLineSelect) {
+                    populateAccountSelect(firstJournalLineSelect);
+                }
+                updateJournalTotals();
+            };
+
+            // تهيئة وعرض الأقسام عند تحميل الصفحة لأول مرة
+            renderAllSections();
+            // إضافة سطر قيد يومية افتراضي عند التحميل
+            addJournalLine();
+
+            // عرض لوحة التحكم كقسم افتراضي عند التحميل
+            showSection('dashboard');
+        });
+
+        /*
+        ***********************************************************************************
+        * ملاحظة هامة جداً حول "سورس كود SQL" والنظام المحاسبي المتكامل:
+        ***********************************************************************************
+
+        هذا الملف (index.html) هو واجهة أمامية (Front-end) فقط.
+        هو مسؤول عن:
+        1.  عرض التصميم الجذاب (باستخدام Tailwind CSS).
+        2.  توفير التنقل بين الأقسام المختلفة.
+        3.  عرض البيانات في جداول (البيانات المعروضة حالياً هي بيانات وهمية/أمثلة).
+        4.  محاكاة عمليات CRUD (إنشاء، قراءة، تحديث، حذف) وتحديث أرصدة الحسابات
+            باستخدام JavaScript و `localStorage` في متصفح المستخدم.
+
+        للحصول على نظام محاسبي متكامل حقيقي مثل Odoo، تحتاج إلى:
+
+        1.  **قاعدة بيانات SQL حقيقية على الخادم (مثال: PostgreSQL, MySQL, SQL Server):**
+            * هذه هي المكان الذي يتم فيه تخزين جميع بياناتك المالية (قيود اليومية، الحسابات، الفواتير، المخزون، إلخ) بشكل آمن وموثوق.
+            * لا يمكن لمتصفح الويب الاتصال بقاعدة بيانات SQL مباشرة لأسباب أمنية.
+
+        2.  **خادم خلفي (Backend Server) - هذا هو "سورس كود SQL" الفعلي:**
+            * هذا الخادم هو تطبيق برمجي يعمل على جهاز كمبيوتر (سيرفر) وليس في متصفح المستخدم.
+            * يمكن بناء هذا الخادم باستخدام لغات برمجة مثل:
+                * **Python (كما في Odoo):** مع أطر عمل مثل Django أو Flask.
+                * **PHP:** مع أطر عمل مثل Laravel.
+                * **Node.js:** مع أطر عمل مثل Express.
+                * **Java:** مع أطر عمل مثل Spring Boot.
+                * **.NET (C#):** مع ASP.NET Core.
+            * **وظيفة هذا الخادم:**
+                * **الاتصال بقاعدة بيانات SQL:** هو الوحيد الذي لديه صلاحية الاتصال بقاعدة البيانات وقراءة وكتابة البيانات.
+                * **معالجة المنطق المحاسبي:** يقوم بتنفيذ جميع العمليات المحاسبية المعقدة (مثل تسجيل قيد يومية، تحديث الأرصدة، حساب الإهلاك، توليد التقارير).
+                * **توفير واجهة برمجة تطبيقات (API):** يقوم بإنشاء "نقاط نهاية" (endpoints) يمكن لصفحة HTML هذه الاتصال بها (عبر JavaScript باستخدام `fetch()` أو `XMLHttpRequest`) لطلب البيانات أو إرسالها.
+                    * مثال: عندما تضغط على "حفظ قيد اليومية"، ترسل صفحة HTML البيانات إلى API الخادم. يقوم الخادم بالتحقق من البيانات، وتسجيلها في قاعدة بيانات SQL، وتحديث أرصدة الحسابات، ثم يعيد تأكيدًا إلى صفحة HTML.
+
+        3.  **دمج الكاشير الحالي:**
+            * إذا كان لديك كاشير HTML + SQL، فهذا يعني أن الكاشير الحالي الخاص بك لديه بالفعل اتصال بخادم خلفي (ربما بلغة PHP أو ما شابه) يتصل بقاعدة بيانات SQL.
+            * لدمج هذا الكاشير مع نظام محاسبي متكامل (مثل Odoo أو نظام مخصص)، ستحتاج إلى "جسر تكامل" (Integration Bridge) كما شرحت سابقًا. هذا الجسر سيكون تطبيقًا على الخادم يقوم بسحب بيانات المبيعات من قاعدة بيانات الكاشير ويرسلها إلى نظام المحاسبة المتكامل (Odoo) عبر API الخاص به.
+
+        **الخلاصة:** هذا الملف هو الأساس لواجهة مستخدم جميلة وتفاعلية تحاكي نظامًا محاسبيًا. "سورس كود SQL" الفعلي (بمعنى التفاعل مع قاعدة البيانات والمنطق المحاسبي) سيكون جزءًا من الخادم الخلفي، وليس موجودًا في هذا الملف HTML.
+        */
+    </script>
+</body>
+</html>
